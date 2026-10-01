@@ -1,0 +1,997 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="U.S. airline on-time arrival and cancellation rates, 2019 to June 2026, from Bureau of Transportation Statistics data, with Delta highlighted.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Which airline lands on time?">
+<meta property="og:description" content="U.S. airline on-time arrival and cancellation rates, 2019 to June 2026, from Bureau of Transportation Statistics data, with Delta highlighted.">
+<style>
+  :root { color-scheme: light; }
+  body { margin: 0; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
+</style>
+<title>Airline On-Time Scorecard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+  /* Layout: one centered column (max 1120px). Masthead, key findings, filter row,
+     KPI strip, two ranking charts side by side, year trend, data table, notes. */
+  :root {
+    --bg: #f2f4f7;
+    --surface: #ffffff;
+    --ink: #0f1b2d;
+    --ink-2: #4a5568;
+    --muted: #5f6b7b;
+    --grid: #e7ebf0;
+    --axis: #c5ccd6;
+    --hairline: rgba(15, 27, 45, 0.11);
+    --accent: #2a78d6;
+    --accent-wash: rgba(42, 120, 214, 0.10);
+    --s2: #eb6834;
+    --s3: #1baf7a;
+    --s4: #eda100;
+    --mark-muted: #aab4c1;
+    --avg: #4a5568;
+    --band: #f1f3f6;
+    --good: #006300;
+    --chip: #edf0f4;
+    --shadow: 0 10px 28px rgba(15, 27, 45, 0.14);
+    --font-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", system-ui, sans-serif;
+    --font-body: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0b0f14;
+      --surface: #141a21;
+      --ink: #e9eef5;
+      --ink-2: #aeb8c6;
+      --muted: #8f9aaa;
+      --grid: #222a34;
+      --axis: #3a4450;
+      --hairline: rgba(255, 255, 255, 0.09);
+      --accent: #3987e5;
+      --accent-wash: rgba(57, 135, 229, 0.17);
+      --s2: #d95926;
+      --s3: #199e70;
+      --s4: #c98500;
+      --mark-muted: #505b69;
+      --avg: #aeb8c6;
+      --band: #18202a;
+      --good: #0ca30c;
+      --chip: #1f2731;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0b0f14;
+    --surface: #141a21;
+    --ink: #e9eef5;
+    --ink-2: #aeb8c6;
+    --muted: #8f9aaa;
+    --grid: #222a34;
+    --axis: #3a4450;
+    --hairline: rgba(255, 255, 255, 0.09);
+    --accent: #3987e5;
+    --accent-wash: rgba(57, 135, 229, 0.17);
+    --s2: #d95926;
+    --s3: #199e70;
+    --s4: #c98500;
+    --mark-muted: #505b69;
+    --avg: #aeb8c6;
+    --band: #18202a;
+    --good: #0ca30c;
+    --chip: #1f2731;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+    color-scheme: dark;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 400 15px/1.5 var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding-inline: clamp(16px, 4vw, 32px);
+    padding-block: 28px 56px;
+    display: grid;
+    gap: 20px;
+  }
+  .sr {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); white-space: nowrap;
+  }
+
+  /* Masthead */
+  .masthead { display: grid; gap: 10px; padding-block: 4px 2px; }
+  .eyebrow {
+    margin: 0;
+    font: 500 11.5px/1.5 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  h1 {
+    margin: 0;
+    font: 600 clamp(36px, 6.2vw, 56px)/0.98 var(--font-display);
+    letter-spacing: -0.005em;
+    text-wrap: balance;
+  }
+  .dek { margin: 0; max-width: 62ch; font-size: 16.5px; color: var(--ink-2); }
+
+  /* Key findings */
+  .findings {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+  }
+  .finding { padding: 16px 20px 18px; display: grid; gap: 4px; align-content: start; min-width: 0; }
+  .finding + .finding { border-left: 1px solid var(--hairline); }
+  .f-stat { margin: 0; font: 600 30px/1.05 var(--font-display); letter-spacing: 0.005em; }
+  .f-text { margin: 0; color: var(--ink-2); font-size: 14.5px; max-width: 44ch; }
+
+  /* Filters */
+  .filters { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 22px; }
+  .filter-group { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; min-width: 0; }
+  .filter-label {
+    font: 500 11.5px/1 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .seg {
+    display: flex; flex-wrap: wrap; gap: 3px; padding: 3px;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+  }
+  .seg button {
+    appearance: none; border: 0; background: transparent;
+    color: var(--ink-2);
+    font: 500 13.5px/1 var(--font-body);
+    font-variant-numeric: tabular-nums;
+    padding: 8px 11px;
+    border-radius: 7px;
+    cursor: pointer;
+  }
+  .seg button:hover { background: var(--chip); color: var(--ink); }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+  .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .switch {
+    position: relative;
+    display: inline-flex; align-items: center; gap: 10px;
+    cursor: pointer; user-select: none;
+    color: var(--ink-2); font-size: 14px;
+  }
+  .switch input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
+  .track {
+    flex: none; position: relative;
+    width: 36px; height: 20px; border-radius: 999px;
+    background: var(--axis);
+    transition: background 0.15s;
+  }
+  .track::after {
+    content: ""; position: absolute; top: 2px; left: 2px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--surface);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    transition: transform 0.15s;
+  }
+  .switch input:checked + .track { background: var(--accent); }
+  .switch input:checked + .track::after { transform: translateX(16px); }
+  .switch input:focus-visible + .track { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* KPI strip */
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+  }
+  .kpi { padding: 16px 20px 18px; display: grid; gap: 3px; align-content: start; min-width: 0; }
+  .kpi + .kpi { border-left: 1px solid var(--hairline); }
+  .kpi-label { margin: 0; font-size: 13px; font-weight: 500; color: var(--ink-2); }
+  .kpi-value { margin: 0; font: 600 34px/1.1 var(--font-body); letter-spacing: -0.01em; }
+  .kpi-sub { margin: 0; font-size: 13px; color: var(--muted); }
+  .pill { display: inline-flex; align-items: center; gap: 4px; margin: 2px 0 0; font-size: 12.5px; font-weight: 600; color: var(--good); }
+  .pill.neutral { color: var(--ink-2); }
+
+  /* Cards and charts */
+  .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
+  .card {
+    margin: 0;
+    background: var(--surface);
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    padding: 18px 18px 14px;
+    min-width: 0;
+    display: grid;
+    gap: 12px;
+  }
+  .card h2 { margin: 0; font: 600 22px/1.15 var(--font-display); letter-spacing: 0.005em; }
+  .card .sub { margin: 4px 0 0; font-size: 13px; color: var(--muted); max-width: 70ch; }
+  .chart { width: 100%; min-width: 0; }
+  .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+  .t-axis { fill: var(--muted); font: 500 11px var(--font-body); font-variant-numeric: tabular-nums; }
+  .t-axis.sel { fill: var(--ink); font-weight: 600; }
+  .t-name { fill: var(--ink); font: 500 13px var(--font-body); }
+  .t-name.hl { font-weight: 600; }
+  .t-code { fill: var(--ink-2); font: 500 10.5px var(--font-mono); letter-spacing: 0.03em; }
+  .chip-bg { fill: var(--chip); }
+  .t-val {
+    fill: var(--ink-2); font: 500 12px var(--font-body); font-variant-numeric: tabular-nums;
+    paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round;
+  }
+  .t-val.hl { fill: var(--ink); font-weight: 600; }
+  .t-avg {
+    fill: var(--ink-2); font: 600 11px var(--font-body); font-variant-numeric: tabular-nums;
+    paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round;
+  }
+  .gridline { stroke: var(--grid); stroke-width: 1; }
+  .baseline { stroke: var(--axis); stroke-width: 1; }
+  .bar { fill: var(--mark-muted); }
+  .bar.hl { fill: var(--accent); }
+  .avg-line { stroke: var(--avg); stroke-width: 1.5; }
+  .hit { fill: transparent; pointer-events: all; }
+  .row { outline: none; }
+  .row:hover .hit { fill: var(--accent-wash); }
+  .row:focus-visible .hit { fill: var(--accent-wash); stroke: var(--accent); stroke-width: 1.5; }
+  .band { fill: var(--band); }
+  .sel-col { fill: var(--accent-wash); }
+  .line { fill: none; stroke: var(--c); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .line.main { stroke-width: 2.75; }
+  .dot { fill: var(--c); stroke: var(--surface); stroke-width: 2; }
+  .leader { fill: none; stroke: var(--axis); stroke-width: 1; }
+  .t-end { fill: var(--ink); font: 600 12px var(--font-body); font-variant-numeric: tabular-nums; }
+  .t-end .v { fill: var(--ink-2); font-weight: 500; }
+  .crosshair { stroke: var(--ink-2); stroke-width: 1; opacity: 0.55; }
+  .trend-svg { outline: none; cursor: pointer; }
+  .trend-svg:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 6px; }
+
+  .k-DL { --c: var(--accent); }
+  .k-UA { --c: var(--s2); }
+  .k-AA { --c: var(--s3); }
+  .k-WN { --c: var(--s4); }
+  .k-ALL { --c: var(--avg); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0; padding: 0; list-style: none; font-size: 13px; color: var(--ink-2); }
+  .legend li { display: inline-flex; align-items: center; gap: 7px; }
+  .legend .key { width: 18px; height: 0; border-top: 2.5px solid var(--c); border-radius: 2px; }
+
+  /* Tooltip */
+  .tip {
+    position: fixed; z-index: 20; pointer-events: none;
+    min-width: 170px; max-width: 270px;
+    background: var(--surface); color: var(--ink);
+    border: 1px solid var(--hairline); border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 10px 12px;
+    font-size: 13px; line-height: 1.35;
+  }
+  .tip-title { margin: 0; font-weight: 600; }
+  .tip-sub { margin: 1px 0 0; color: var(--muted); font-size: 12px; }
+  .tip-rows { display: grid; grid-template-columns: auto auto 1fr; column-gap: 8px; row-gap: 3px; align-items: center; margin-top: 8px; }
+  .tip-rows.nokey { grid-template-columns: auto 1fr; }
+  .tip-row { display: contents; }
+  .tip-key { width: 14px; height: 0; border-top: 2.5px solid var(--c); border-radius: 2px; }
+  .tip-v { font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+  .tip-l { color: var(--ink-2); }
+  .tip-foot { margin: 8px 0 0; color: var(--muted); font-size: 12px; }
+
+  /* Tables */
+  details.card > summary {
+    cursor: pointer; list-style: none;
+    display: flex; align-items: center; gap: 10px;
+    font: 600 15px/1.3 var(--font-body);
+  }
+  details.card > summary::-webkit-details-marker { display: none; }
+  details.card > summary::before {
+    content: ""; flex: none; width: 7px; height: 7px; margin-left: 2px;
+    border-right: 2px solid var(--ink-2); border-bottom: 2px solid var(--ink-2);
+    transform: rotate(-45deg); transition: transform 0.15s;
+  }
+  details[open].card > summary::before { transform: rotate(45deg); }
+  details.card > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 4px; }
+  .summary-note { font-weight: 400; color: var(--muted); font-size: 13px; }
+  details.inline > summary {
+    cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 500; color: var(--ink-2);
+  }
+  details.inline > summary::-webkit-details-marker { display: none; }
+  details.inline > summary::before {
+    content: ""; width: 6px; height: 6px;
+    border-right: 1.5px solid var(--ink-2); border-bottom: 1.5px solid var(--ink-2);
+    transform: rotate(-45deg); transition: transform 0.15s;
+  }
+  details[open].inline > summary::before { transform: rotate(45deg); }
+  details.inline > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+  .table-scroll { overflow-x: auto; margin-top: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; font-variant-numeric: tabular-nums; min-width: 560px; }
+  th {
+    text-align: left; white-space: nowrap;
+    font: 500 11px/1.3 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--muted);
+    padding: 8px 10px; border-bottom: 1px solid var(--hairline);
+  }
+  td { padding: 8px 10px; border-bottom: 1px solid var(--hairline); white-space: nowrap; }
+  th.n, td.n { text-align: right; }
+  tr.hl td { background: var(--accent-wash); font-weight: 600; }
+  tr.total td { font-weight: 600; border-top: 1.5px solid var(--axis); border-bottom: 0; }
+  td.code { font: 500 12px var(--font-mono); color: var(--ink-2); }
+  .tag {
+    margin-left: 8px;
+    font: 500 10px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* Notes */
+  .notes { display: grid; gap: 10px; font-size: 13.5px; color: var(--ink-2); max-width: 78ch; padding-top: 6px; }
+  .notes h2 { margin: 0; font: 600 20px/1.2 var(--font-display); color: var(--ink); }
+  .notes ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+  .notes p { margin: 0; }
+  .notes a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: 2px; }
+  .notes a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+  @media (max-width: 880px) {
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 760px) {
+    .findings { grid-template-columns: 1fr; }
+    .finding + .finding { border-left: 0; border-top: 1px solid var(--hairline); }
+    .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .kpi + .kpi { border-left: 0; }
+    .kpi:nth-child(even) { border-left: 1px solid var(--hairline); }
+    .kpi:nth-child(n + 3) { border-top: 1px solid var(--hairline); }
+    .kpi-value { font-size: 28px; }
+  }
+  @media (max-width: 420px) {
+    .kpi { padding: 14px 14px 16px; }
+    .kpi-value { font-size: 25px; }
+    .card { padding: 16px 14px 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .track, .track::after, details.card > summary::before, details.inline > summary::before { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="masthead">
+    <p class="eyebrow">On-time performance · Data through June 2026 · Source: BTS</p>
+    <h1>Which airline lands on time?</h1>
+    <p class="dek">On-time arrival and cancellation rates for U.S. airlines from 2019 through June 2026, based on Bureau of Transportation Statistics data. Delta is highlighted. Pick a year to compare.</p>
+  </header>
+
+  <section class="findings" aria-label="Key findings">
+    <div class="finding">
+      <p class="f-stat">8 for 8</p>
+      <p class="f-text">Delta had a higher on-time rate than American, Southwest and United in every year from 2019 through mid-2026.</p>
+    </div>
+    <div class="finding">
+      <p class="f-stat">#1 of 13</p>
+      <p class="f-text">From January to June 2026, Delta ranked first among all 13 carriers reporting to BTS, just ahead of Alaska at 80.2%.</p>
+    </div>
+    <div class="finding">
+      <p class="f-stat">76.3%</p>
+      <p class="f-text">The industry’s on-time rate in 2025, the lowest of any full year from 2019 to 2025 and 2.9 points below 2019.</p>
+    </div>
+  </section>
+
+  <div class="filters">
+    <div class="filter-group">
+      <span class="filter-label" id="yearLabel">Year</span>
+      <div class="seg" id="yearSeg" role="group" aria-labelledby="yearLabel"></div>
+    </div>
+    <label class="switch" for="regionalToggle">
+      <input type="checkbox" id="regionalToggle">
+      <span class="track" aria-hidden="true"></span>
+      <span>Include regional airlines</span>
+    </label>
+  </div>
+
+  <section class="kpis" id="kpis" aria-live="polite" aria-label="Delta at a glance"></section>
+
+  <div class="grid-2">
+    <figure class="card">
+      <figcaption>
+        <h2>On-time arrival rate</h2>
+        <p class="sub" id="otSub"></p>
+      </figcaption>
+      <div class="chart" id="otChart"></div>
+    </figure>
+    <figure class="card">
+      <figcaption>
+        <h2>Cancellation rate</h2>
+        <p class="sub" id="cxSub"></p>
+      </figcaption>
+      <div class="chart" id="cxChart"></div>
+    </figure>
+  </div>
+
+  <figure class="card">
+    <figcaption>
+      <h2>Big Four on-time rate by year</h2>
+      <p class="sub">American, Delta, Southwest and United against the average for all reporting carriers. Select a year on the chart to update the views above. 2026 covers January to June.</p>
+    </figcaption>
+    <ul class="legend" id="trendLegend"></ul>
+    <div class="chart" id="trendChart"></div>
+    <details class="inline">
+      <summary>Show these numbers as a table</summary>
+      <div class="table-scroll"><table id="trendTable"></table></div>
+    </details>
+  </figure>
+
+  <details class="card">
+    <summary><span>All airlines, <span id="tablePeriod"></span> <span class="summary-note">· data table</span></span></summary>
+    <div class="table-scroll"><table id="dataTable"></table></div>
+  </details>
+
+  <footer class="notes">
+    <h2>About the data</h2>
+    <ul>
+      <li>A flight counts as on time if it arrived less than 15 minutes after its scheduled time. This is the standard the U.S. Department of Transportation uses, often called A14 in the industry.</li>
+      <li>Rates are shares of all scheduled flights, so on time, late, cancelled and diverted add up to 100%.</li>
+      <li>Each airline’s figures cover only the flights it operates. Regional airlines such as SkyWest and Envoy fly for partner brands like Delta Connection and American Eagle and report their own numbers.</li>
+      <li>The all-carrier average weights every reporting carrier by its number of flights. A carrier appears only in years with data in the source.</li>
+      <li>2020 and 2021 rates were unusually high because far fewer flights operated during the pandemic. 2026 covers January to June, the latest month available.</li>
+    </ul>
+    <p>Source: U.S. Department of Transportation, Bureau of Transportation Statistics airline on-time performance data (<a href="https://www.transtats.bts.gov/" target="_blank" rel="noopener">TranStats</a>), as compiled by <a href="https://www.aviationdb.com/Aviation/OTP/Carrier-OTP-2026.shtm" target="_blank" rel="noopener">AviationDB</a>. Independent analysis, not affiliated with any airline.</p>
+  </footer>
+</div>
+
+<div class="tip" id="tip" hidden></div>
+
+<script>
+(() => {
+  "use strict";
+
+  // [scheduled flights, % on time, % late, % cancelled, % diverted]
+  const D = {
+    2019: { HA:[83891,88.3,11.4,0.2,0.1], DL:[991986,85.2,14.4,0.2,0.2], "9E":[257132,80.9,17.2,1.7,0.2], AS:[264816,80.3,18.3,1.2,0.3], WN:[1363946,80.2,17.1,2.5,0.2], NK:[204845,79.5,18.5,1.8,0.2], OO:[836445,79.2,18.3,2.1,0.4], YX:[329149,78.7,18.7,2.3,0.3], G4:[105305,78.7,20.5,0.6,0.2], OH:[289304,78.1,19.3,2.4,0.3], UA:[625910,77.7,21.1,0.9,0.3], AA:[946776,77.0,20.6,2.1,0.3], YV:[227888,76.3,20.5,2.9,0.3], MQ:[327007,76.1,20.1,3.5,0.3], B6:[297411,73.5,24.9,1.3,0.3], F9:[135543,73.1,25.0,1.7,0.1], EV:[134683,70.6,24.5,4.5,0.3], ALL:[7422037,79.2,18.7,1.8,0.3] },
+    2020: { "9E":[211402,89.2,7.4,3.3,0.1], HA:[40414,88.0,6.6,5.3,0.1], YX:[219751,86.9,8.1,4.8,0.1], NK:[135102,86.6,11.0,2.2,0.2], DL:[581101,86.3,8.6,5.0,0.1], WN:[961276,86.0,5.8,8.1,0.1], OO:[597021,85.9,9.7,4.2,0.2], AS:[138226,84.9,11.0,4.0,0.2], F9:[91175,83.9,10.9,5.1,0.1], UA:[308217,83.6,9.0,7.3,0.1], AA:[569806,83.4,10.5,6.0,0.2], B6:[144163,82.1,12.1,5.5,0.2], MQ:[211268,82.0,12.6,5.3,0.2], EV:[52135,81.8,10.2,7.7,0.2], YV:[136198,81.6,12.1,6.1,0.2], OH:[192614,79.3,13.2,7.3,0.2], G4:[98489,71.3,13.6,14.5,0.5], ALL:[4688358,84.6,9.2,6.0,0.2] },
+    2021: { "9E":[266702,91.0,8.5,0.4,0.2], HA:[60542,90.1,9.4,0.4,0.1], DL:[747998,87.8,11.5,0.5,0.2], QX:[111628,85.3,12.7,1.9,0.2], OH:[222611,84.5,14.2,1.0,0.2], YX:[333063,84.4,13.7,1.8,0.2], OO:[753417,82.4,15.5,1.8,0.3], MQ:[255710,82.3,15.2,2.2,0.3], UA:[446837,81.3,17.0,1.4,0.2], AS:[188955,81.2,16.8,1.7,0.2], AA:[736399,80.5,16.9,2.2,0.3], YV:[159809,77.1,19.6,3.0,0.3], NK:[191361,76.7,20.1,3.0,0.2], F9:[137142,76.6,21.8,1.4,0.1], WN:[1064640,75.8,21.8,2.2,0.2], B6:[202702,72.3,25.7,1.6,0.4], G4:[115881,68.3,28.2,3.3,0.2], ALL:[5995397,81.2,16.9,1.7,0.2] },
+    2022: { DL:[893172,82.5,15.7,1.6,0.2], QX:[88791,81.8,16.3,1.7,0.2], OO:[733576,81.6,16.3,1.8,0.3], MQ:[248059,80.6,16.9,2.2,0.2], "9E":[231941,80.5,15.7,3.5,0.2], UA:[626473,79.0,18.8,1.9,0.3], OH:[214450,78.0,18.7,3.1,0.3], YV:[114779,77.4,19.0,3.3,0.3], AS:[228384,77.3,19.7,2.7,0.3], YX:[316524,76.4,18.6,4.7,0.3], HA:[73865,75.8,23.2,0.9,0.1], AA:[874145,74.9,21.8,3.0,0.3], WN:[1307149,73.2,23.4,3.3,0.2], NK:[232400,73.0,23.9,3.0,0.2], F9:[155482,66.1,30.9,2.9,0.2], B6:[273058,64.6,31.3,3.7,0.4], G4:[116877,63.4,32.8,3.5,0.3], ALL:[6729125,76.6,20.5,2.7,0.2] },
+    2023: { YX:[295275,84.3,12.7,2.8,0.2], "9E":[201520,84.1,13.6,2.1,0.2], DL:[984986,82.6,16.2,1.0,0.2], OO:[675163,82.5,16.0,1.2,0.3], OH:[194144,82.1,16.4,1.3,0.3], MQ:[227488,80.8,17.9,1.0,0.2], AS:[245344,79.5,19.4,0.8,0.3], UA:[732212,78.1,20.3,1.4,0.3], WN:[1438465,77.3,21.5,1.0,0.2], AA:[940531,75.9,22.7,1.1,0.3], HA:[80967,75.2,23.4,1.3,0.1], G4:[115539,73.4,25.7,0.7,0.3], NK:[263871,69.5,28.6,1.7,0.2], B6:[274852,67.1,30.4,2.1,0.4], F9:[177542,67.0,30.7,2.1,0.2], ALL:[6847899,78.2,20.2,1.3,0.2] },
+    2024: { YX:[301465,84.2,13.8,1.8,0.2], HA:[78530,83.6,15.3,1.0,0.1], "9E":[200094,82.1,15.4,2.3,0.2], DL:[1009174,81.8,17.1,0.9,0.2], OO:[744658,79.8,18.7,1.1,0.3], UA:[760451,78.6,19.5,1.6,0.3], WN:[1419419,78.6,20.4,0.8,0.2], MQ:[279955,77.8,20.5,1.4,0.2], G4:[117210,76.8,21.2,1.7,0.3], OH:[227971,76.8,21.4,1.6,0.2], AS:[245819,76.2,21.6,2.0,0.3], NK:[261103,74.5,23.4,1.9,0.2], B6:[240282,73.1,25.0,1.6,0.4], AA:[984306,72.5,25.7,1.5,0.3], F9:[207660,69.5,28.1,2.3,0.1], ALL:[7078097,77.9,20.5,1.4,0.2] },
+    2025: { HA:[80084,81.9,17.1,0.8,0.1], DL:[1026332,79.1,19.5,1.1,0.3], OO:[839821,77.9,20.4,1.4,0.3], WN:[1391885,77.8,21.2,0.8,0.2], UA:[795271,77.7,21.2,0.8,0.3], NK:[194515,77.2,21.0,1.5,0.2], MQ:[299322,77.0,20.5,2.2,0.3], AS:[245588,75.8,22.8,1.2,0.3], YX:[346036,75.8,20.8,3.3,0.2], G4:[130899,74.5,24.8,0.5,0.3], AA:[973653,72.7,25.2,1.8,0.3], B6:[231413,72.3,25.6,1.7,0.4], F9:[198065,70.7,27.4,1.8,0.2], OH:[248735,69.0,26.2,4.6,0.3], ALL:[7001619,76.3,21.9,1.5,0.3] },
+    2026: { DL:[509605,80.3,17.4,2.1,0.2], AS:[164539,80.2,18.4,1.1,0.2], UA:[410786,79.1,19.5,1.1,0.3], MQ:[158744,78.6,18.4,2.7,0.3], OO:[424414,76.6,21.0,2.0,0.3], YX:[182909,76.4,19.0,4.4,0.2], WN:[686476,74.8,24.0,1.0,0.2], AA:[493947,73.0,23.7,2.9,0.4], G4:[64123,72.7,26.1,0.9,0.3], F9:[106624,72.1,25.8,2.0,0.2], B6:[118580,71.0,25.8,2.9,0.3], OH:[120424,69.9,24.1,5.6,0.3], NK:[47202,59.8,32.5,7.5,0.2], ALL:[3488373,76.0,21.6,2.2,0.3] }
+  };
+
+  const META = {
+    DL: { name: "Delta Air Lines", short: "Delta" },
+    UA: { name: "United Airlines", short: "United" },
+    AA: { name: "American Airlines", short: "American" },
+    WN: { name: "Southwest Airlines", short: "Southwest" },
+    AS: { name: "Alaska Airlines", short: "Alaska" },
+    B6: { name: "JetBlue Airways", short: "JetBlue" },
+    NK: { name: "Spirit Airlines", short: "Spirit" },
+    F9: { name: "Frontier Airlines", short: "Frontier" },
+    G4: { name: "Allegiant Air", short: "Allegiant" },
+    HA: { name: "Hawaiian Airlines", short: "Hawaiian" },
+    OO: { name: "SkyWest Airlines", short: "SkyWest", regional: true },
+    YX: { name: "Republic Airways", short: "Republic", regional: true },
+    MQ: { name: "Envoy Air", short: "Envoy", regional: true },
+    OH: { name: "PSA Airlines", short: "PSA", regional: true },
+    "9E": { name: "Endeavor Air", short: "Endeavor", regional: true },
+    QX: { name: "Horizon Air", short: "Horizon", regional: true },
+    YV: { name: "Mesa Airlines", short: "Mesa", regional: true },
+    EV: { name: "ExpressJet Airlines", short: "ExpressJet", regional: true }
+  };
+
+  const YEARS = [2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026];
+  const SERIES = {
+    DL: { label: "Delta", short: "Delta" },
+    UA: { label: "United", short: "United" },
+    AA: { label: "American", short: "American" },
+    WN: { label: "Southwest", short: "Southwest" },
+    ALL: { label: "All carriers", short: "Average" }
+  };
+  const LEGEND_ORDER = ["DL", "UA", "AA", "WN", "ALL"];
+  const DRAW_ORDER = ["ALL", "AA", "WN", "UA", "DL"];
+
+  const state = { year: 2026, regional: false };
+  const NS = "http://www.w3.org/2000/svg";
+
+  const period = y => (y === 2026 ? "January–June 2026" : "full year " + y);
+  const periodTitle = y => (y === 2026 ? "January–June 2026" : "Full year " + y);
+  const f1 = v => v.toFixed(1);
+  const fN = v => v.toLocaleString("en-US");
+  const val = (code, y) => D[y][code][1];
+
+  function s(tag, attrs, parent) {
+    const el = document.createElementNS(NS, tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(el);
+    return el;
+  }
+  function h(tag, cls, text, parent) {
+    const el = document.createElement(tag);
+    if (cls) el.className = cls;
+    if (text != null) el.textContent = text;
+    if (parent) parent.appendChild(el);
+    return el;
+  }
+
+  function rowsFor(y) {
+    return Object.keys(D[y])
+      .filter(c => c !== "ALL" && (state.regional || !META[c].regional))
+      .map(c => {
+        const v = D[y][c];
+        return Object.assign({ code: c, flights: v[0], on: v[1], late: v[2], cx: v[3], div: v[4] }, META[c]);
+      });
+  }
+  const byOn = (a, b) => b.on - a.on || b.flights - a.flights;
+
+  /* ---------- Tooltip ---------- */
+  const tip = document.getElementById("tip");
+  function showTip(c, cx, cy) {
+    tip.textContent = "";
+    h("p", "tip-title", c.title, tip);
+    if (c.sub) h("p", "tip-sub", c.sub, tip);
+    const keyed = c.rows.some(r => r.key);
+    const list = h("div", "tip-rows" + (keyed ? "" : " nokey"), null, tip);
+    c.rows.forEach(r => {
+      const row = h("div", "tip-row", null, list);
+      if (keyed) h("span", "tip-key k-" + r.key, null, row);
+      h("span", "tip-v", r.v, row);
+      h("span", "tip-l", r.l, row);
+    });
+    if (c.foot) h("p", "tip-foot", c.foot, tip);
+    tip.hidden = false;
+    placeTip(cx, cy);
+  }
+  function placeTip(cx, cy) {
+    const pad = 10;
+    const r = tip.getBoundingClientRect();
+    let left = cx + 16, top = cy + 16;
+    if (left + r.width > innerWidth - pad) left = cx - r.width - 16;
+    if (left < pad) left = pad;
+    if (top + r.height > innerHeight - pad) top = cy - r.height - 16;
+    if (top < pad) top = pad;
+    tip.style.left = left + "px";
+    tip.style.top = top + "px";
+  }
+  function hideTip() { tip.hidden = true; }
+  document.addEventListener("click", hideTip);
+  addEventListener("scroll", hideTip, { passive: true });
+
+  function bindTip(target, content) {
+    target.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") showTip(content(), e.clientX, e.clientY); });
+    target.addEventListener("pointermove", e => { if (e.pointerType === "mouse" && !tip.hidden) placeTip(e.clientX, e.clientY); });
+    target.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") hideTip(); });
+    target.addEventListener("click", e => {
+      if (e.pointerType === "mouse") return;
+      e.stopPropagation();
+      showTip(content(), e.clientX, e.clientY);
+    });
+    target.addEventListener("focus", () => {
+      const r = target.getBoundingClientRect();
+      showTip(content(), Math.min(r.right - 60, innerWidth - 40), r.top + r.height / 2);
+    });
+    target.addEventListener("blur", hideTip);
+  }
+
+  /* ---------- Year control ---------- */
+  const seg = document.getElementById("yearSeg");
+  YEARS.forEach(y => {
+    const b = h("button", null, y === 2026 ? "2026 (Jan–Jun)" : String(y), seg);
+    b.type = "button";
+    b.id = "year-" + y;
+    b.addEventListener("click", () => setYear(y));
+  });
+  const regionalToggle = document.getElementById("regionalToggle");
+  regionalToggle.addEventListener("change", () => { state.regional = regionalToggle.checked; update(); });
+
+  function setYear(y) {
+    if (state.year === y) return;
+    state.year = y;
+    update();
+  }
+
+  /* ---------- KPI strip ---------- */
+  function tile(parent, label, value, sub, pill) {
+    const t = h("div", "kpi", null, parent);
+    h("p", "kpi-label", label, t);
+    h("p", "kpi-value", value, t);
+    h("p", "kpi-sub", sub, t);
+    if (pill) {
+      const p = h("p", "pill" + (pill.good ? "" : " neutral"), null, t);
+      h("span", null, pill.icon, p).setAttribute("aria-hidden", "true");
+      h("span", null, pill.text, p);
+    }
+  }
+  function renderKPIs() {
+    const y = state.year;
+    const rows = rowsFor(y).sort(byOn);
+    const dl = rows.find(r => r.code === "DL");
+    const all = D[y].ALL;
+    const rank = rows.indexOf(dl) + 1;
+    const leader = rows[0];
+    const box = document.getElementById("kpis");
+    box.textContent = "";
+    tile(box, "Delta on-time rate", f1(dl.on) + "%", "of " + fN(dl.flights) + " scheduled flights");
+    tile(box, "Delta’s rank", "#" + rank,
+      rank === 1 ? "of " + rows.length + " airlines shown"
+                 : "of " + rows.length + " · " + leader.short + " leads at " + f1(leader.on) + "%");
+    const lead = dl.on - all[1];
+    tile(box, "Lead over all-carrier average", (lead >= 0 ? "+" : "−") + f1(Math.abs(lead)) + " pts",
+      "Average: " + f1(all[1]) + "% on time");
+    const diff = dl.cx - all[3];
+    tile(box, "Delta cancellation rate", f1(dl.cx) + "%", "Average: " + f1(all[3]) + "% cancelled",
+      diff < 0 ? { good: true, icon: "▼", text: "Below average" }
+      : diff > 0 ? { good: false, icon: "▲", text: "Above average" }
+      : { good: false, icon: "=", text: "At average" });
+  }
+
+  /* ---------- Ranked bar charts ---------- */
+  function niceScale(v) {
+    const steps = [0.5, 1, 2, 4, 5, 10];
+    for (const st of steps) {
+      const n = Math.ceil(v / st - 1e-9);
+      if (n <= 5) return { max: n * st, step: st };
+    }
+    return { max: Math.ceil(v / 10) * 10, step: 10 };
+  }
+  const tickText = t => (Number.isInteger(t) ? String(t) : t.toFixed(1)) + "%";
+
+  function barPath(x, y, w, hgt, r) {
+    r = Math.max(0, Math.min(r, w, hgt / 2));
+    return "M" + x + "," + y +
+      "H" + (x + w - r) +
+      "A" + r + "," + r + " 0 0 1 " + (x + w) + "," + (y + r) +
+      "V" + (y + hgt - r) +
+      "A" + r + "," + r + " 0 0 1 " + (x + w - r) + "," + (y + hgt) +
+      "H" + x + "Z";
+  }
+
+  function barTip(r, y) {
+    return {
+      title: r.name + " (" + r.code + ")",
+      sub: periodTitle(y) + (r.regional ? " · regional airline" : ""),
+      rows: [
+        { v: f1(r.on) + "%", l: "on time" },
+        { v: f1(r.late) + "%", l: "late, 15+ minutes" },
+        { v: f1(r.cx) + "%", l: "cancelled" },
+        { v: f1(r.div) + "%", l: "diverted" },
+        { v: fN(r.flights), l: "scheduled flights" }
+      ]
+    };
+  }
+
+  function renderBars(el, metric) {
+    const y = state.year;
+    const cx = metric === "cx";
+    const rows = rowsFor(y).sort(cx
+      ? (a, b) => a.cx - b.cx || a.short.localeCompare(b.short)
+      : (a, b) => b.on - a.on || a.short.localeCompare(b.short));
+    const avg = cx ? D[y].ALL[3] : D[y].ALL[1];
+
+    const W = Math.max(280, Math.round(el.clientWidth));
+    const narrow = W < 400;
+    const labelW = narrow ? 108 : 124;
+    const right = 48, top = 30, rowH = 29, barH = 14, bottom = 28;
+    const plotW = W - labelW - right;
+    const H = top + rows.length * rowH + bottom;
+    const scale = cx ? niceScale(Math.max(avg, ...rows.map(r => r.cx))) : { max: 100, step: 25 };
+    const ticks = [];
+    for (let t = 0; t <= scale.max + 1e-9; t += scale.step) ticks.push(Math.round(t * 10) / 10);
+    const x = v => labelW + (v / scale.max) * plotW;
+
+    el.textContent = "";
+    const svg = s("svg", {
+      viewBox: "0 0 " + W + " " + H, width: W, height: H, role: "group",
+      "aria-label": (cx ? "Cancellation rate" : "On-time arrival rate") + " by airline, " + period(y)
+    }, el);
+
+    const grid = s("g", { "aria-hidden": "true" }, svg);
+    ticks.forEach(t => {
+      s("line", { class: t === 0 ? "baseline" : "gridline", x1: x(t), x2: x(t), y1: top - 4, y2: H - bottom + 4 }, grid);
+      const tl = s("text", { class: "t-axis", x: x(t), y: H - 8, "text-anchor": t === 0 ? "start" : "middle" }, grid);
+      tl.textContent = tickText(t);
+    });
+
+    const ax = x(avg);
+    const rowsLayer = s("g", {}, svg);
+    rows.forEach((r, i) => {
+      const hl = r.code === "DL";
+      const v = cx ? r.cx : r.on;
+      const yc = top + i * rowH + rowH / 2;
+      const g = s("g", {
+        class: "row", tabindex: "0", role: "img",
+        "aria-label": r.name + ": " + f1(v) + "% " + (cx ? "cancelled" : "on time")
+      }, rowsLayer);
+      s("rect", { class: "hit", x: 0, y: yc - rowH / 2 + 1, width: W, height: rowH - 2, rx: 6 }, g);
+      s("rect", { class: "chip-bg", x: 2, y: yc - 9, width: 28, height: 18, rx: 4 }, g);
+      const ct = s("text", { class: "t-code", x: 16, y: yc + 3.5, "text-anchor": "middle" }, g);
+      ct.textContent = r.code;
+      const nt = s("text", { class: "t-name" + (hl ? " hl" : ""), x: 38, y: yc + 4.5 }, g);
+      nt.textContent = r.short;
+      const x0 = x(0);
+      const w = Math.max(x(v) - x0, 3);
+      s("path", { class: "bar" + (hl ? " hl" : ""), d: barPath(x0, yc - barH / 2, w, barH, 4) }, g);
+      const lx = x0 + w + 6;
+      const vt = s("text", { class: "t-val" + (hl ? " hl" : ""), x: lx, y: yc + 4, "aria-hidden": "true" }, g);
+      vt.textContent = f1(v) + "%";
+
+      // Average reference line, drawn row by row so it breaks around any value label it would cross.
+      const segTop = i === 0 ? top - 6 : yc - rowH / 2;
+      const segBot = i === rows.length - 1 ? H - bottom + 2 : yc + rowH / 2;
+      const lw = vt.getComputedTextLength ? vt.getComputedTextLength() : 36;
+      const crosses = ax >= lx - 3 && ax <= lx + lw + 3;
+      const spans = crosses ? [[segTop, yc - 8], [yc + 8, segBot]] : [[segTop, segBot]];
+      spans.forEach(sp => {
+        const seg = s("line", { class: "avg-line", x1: ax, x2: ax, y1: sp[0], y2: sp[1], "aria-hidden": "true" });
+        g.insertBefore(seg, vt);
+      });
+      bindTip(g, () => barTip(r, y));
+    });
+
+    const label = "All carriers " + f1(avg) + "%";
+    const estW = label.length * 6;
+    let anchor = "middle";
+    if (ax + estW / 2 > W - 2) anchor = "end";
+    else if (ax - estW / 2 < labelW) anchor = "start";
+    const at = s("text", { class: "t-avg", x: anchor === "end" ? ax + 4 : anchor === "start" ? ax - 4 : ax, y: top - 12, "text-anchor": anchor, "aria-hidden": "true" }, svg);
+    at.textContent = label;
+  }
+
+  /* ---------- Trend chart ---------- */
+  function renderLegend() {
+    const ul = document.getElementById("trendLegend");
+    ul.textContent = "";
+    LEGEND_ORDER.forEach(c => {
+      const li = h("li", "k-" + c, null, ul);
+      h("span", "key", null, li).setAttribute("aria-hidden", "true");
+      h("span", null, SERIES[c].label, li);
+    });
+  }
+
+  function trendTip(i) {
+    const yr = YEARS[i];
+    const items = LEGEND_ORDER.map(c => ({ c, v: val(c, yr) })).sort((a, b) => b.v - a.v);
+    return {
+      title: periodTitle(yr),
+      sub: "On-time arrival rate",
+      rows: items.map(it => ({ key: it.c, v: f1(it.v) + "%", l: SERIES[it.c].label })),
+      foot: yr === state.year ? "Shown in the views above" : "Select to show this year above"
+    };
+  }
+
+  function spread(items, gap, lo, hi) {
+    items.sort((a, b) => a.y - b.y);
+    for (let i = 1; i < items.length; i++) items[i].y = Math.max(items[i].y, items[i - 1].y + gap);
+    if (items.length && items[items.length - 1].y > hi) {
+      items[items.length - 1].y = hi;
+      for (let i = items.length - 2; i >= 0; i--) items[i].y = Math.min(items[i].y, items[i + 1].y - gap);
+    }
+    if (items.length && items[0].y < lo) {
+      items[0].y = lo;
+      for (let i = 1; i < items.length; i++) items[i].y = Math.max(items[i].y, items[i - 1].y + gap);
+    }
+  }
+
+  let trendFocus = null;
+  function renderTrend() {
+    const el = document.getElementById("trendChart");
+    const W = Math.max(280, Math.round(el.clientWidth));
+    const narrow = W < 560;
+    const m = { top: 30, right: narrow ? 100 : 138, bottom: narrow ? 46 : 34, left: 40 };
+    const H = narrow ? 290 : 330;
+    const n = YEARS.length;
+    const plotW = W - m.left - m.right;
+    const step = plotW / (n - 1);
+    const x = i => m.left + i * step;
+    const lo = 70, hi = 90;
+    const y = v => m.top + (1 - (v - lo) / (hi - lo)) * (H - m.top - m.bottom);
+    const si = YEARS.indexOf(state.year);
+
+    el.textContent = "";
+    const svg = s("svg", {
+      viewBox: "0 0 " + W + " " + H, width: W, height: H, class: "trend-svg", tabindex: "0", role: "group",
+      "aria-label": "Big Four on-time rate by year, 2019 to June 2026. Use the left and right arrow keys to read each year and Enter to show it in the views above."
+    }, el);
+
+    const bx0 = x(1) - step / 2, bx1 = x(2) + step / 2;
+    s("rect", { class: "band", x: bx0, y: m.top, width: bx1 - bx0, height: H - m.top - m.bottom }, svg);
+    const bl = s("text", { class: "t-axis", x: (bx0 + bx1) / 2, y: m.top - 10, "text-anchor": "middle" }, svg);
+    bl.textContent = narrow ? "Pandemic" : "Pandemic schedules";
+
+    s("rect", { class: "sel-col", x: x(si) - step * 0.36, y: m.top, width: step * 0.72, height: H - m.top - m.bottom, rx: 6 }, svg);
+
+    [70, 75, 80, 85, 90].forEach(t => {
+      s("line", { class: t === 70 ? "baseline" : "gridline", x1: m.left - 4, x2: W - m.right + 4, y1: y(t), y2: y(t) }, svg);
+      const tl = s("text", { class: "t-axis", x: m.left - 9, y: y(t) + 3.5, "text-anchor": "end" }, svg);
+      tl.textContent = t + "%";
+    });
+
+    YEARS.forEach((yr, i) => {
+      const t = s("text", { class: "t-axis" + (i === si ? " sel" : ""), x: x(i), y: H - m.bottom + 18, "text-anchor": "middle" }, svg);
+      if (yr === 2026) {
+        const a = s("tspan", { x: x(i) }, t);
+        a.textContent = narrow ? "’26" : "2026";
+        const b = s("tspan", { x: x(i), dy: 13 }, t);
+        b.textContent = "Jan–Jun";
+      } else {
+        t.textContent = narrow ? "’" + String(yr).slice(2) : String(yr);
+      }
+    });
+
+    DRAW_ORDER.forEach(code => {
+      const g = s("g", { class: "k-" + code, "aria-hidden": "true" }, svg);
+      const pts = YEARS.map((yr, i) => [x(i), y(val(code, yr))]);
+      s("path", { class: "line" + (code === "DL" ? " main" : ""), d: "M" + pts.map(p => p[0].toFixed(1) + "," + p[1].toFixed(1)).join("L") }, g);
+      pts.forEach(p => s("circle", { class: "dot", cx: p[0], cy: p[1], r: code === "DL" ? 4.5 : 4 }, g));
+    });
+
+    const last = n - 1;
+    const labels = DRAW_ORDER.map(code => ({ code, v: val(code, YEARS[last]), y0: y(val(code, YEARS[last])), y: y(val(code, YEARS[last])) }));
+    spread(labels, 15, m.top + 4, H - m.bottom - 2);
+    const lx = x(last) + 12;
+    labels.forEach(L => {
+      if (Math.abs(L.y - L.y0) > 1.5) {
+        s("polyline", { class: "leader", points: (x(last) + 6) + "," + L.y0 + " " + (lx - 3) + "," + L.y, "aria-hidden": "true" }, svg);
+      }
+      const t = s("text", { class: "t-end", x: lx, y: L.y + 4, "aria-hidden": "true" }, svg);
+      const a = s("tspan", {}, t);
+      a.textContent = (narrow ? SERIES[L.code].short : SERIES[L.code].label) + " ";
+      const b = s("tspan", { class: "v" }, t);
+      b.textContent = f1(L.v) + "%";
+    });
+
+    const cross = s("line", { class: "crosshair", x1: 0, x2: 0, y1: m.top, y2: H - m.bottom, visibility: "hidden", "aria-hidden": "true" }, svg);
+    const ov = s("rect", { class: "hit", x: m.left - step / 2, y: 0, width: plotW + step, height: H }, svg);
+
+    const idxFrom = e => {
+      const r = svg.getBoundingClientRect();
+      const px = (e.clientX - r.left) * (W / r.width);
+      return Math.max(0, Math.min(n - 1, Math.round((px - m.left) / step)));
+    };
+    const showCross = i => {
+      cross.setAttribute("x1", x(i));
+      cross.setAttribute("x2", x(i));
+      cross.setAttribute("visibility", "visible");
+    };
+    const hideCross = () => cross.setAttribute("visibility", "hidden");
+    const pointAt = i => {
+      const r = svg.getBoundingClientRect();
+      const k = r.width / W;
+      const topY = Math.min(...LEGEND_ORDER.map(c => y(val(c, YEARS[i]))));
+      return [r.left + x(i) * k, r.top + topY * k];
+    };
+
+    ov.addEventListener("pointermove", e => {
+      if (e.pointerType !== "mouse") return;
+      const i = idxFrom(e);
+      showCross(i);
+      showTip(trendTip(i), e.clientX, e.clientY);
+    });
+    ov.addEventListener("pointerleave", e => {
+      if (e.pointerType !== "mouse") return;
+      hideCross();
+      hideTip();
+    });
+    ov.addEventListener("click", e => {
+      e.stopPropagation();
+      const i = idxFrom(e);
+      const cxp = e.clientX, cyp = e.clientY;
+      setYear(YEARS[i]);
+      if (e.pointerType !== "mouse") showTip(trendTip(i), cxp, cyp);
+    });
+
+    svg.addEventListener("focus", () => {
+      if (trendFocus == null) trendFocus = si;
+      showCross(trendFocus);
+      const p = pointAt(trendFocus);
+      showTip(trendTip(trendFocus), p[0], p[1]);
+    });
+    svg.addEventListener("blur", () => { hideCross(); hideTip(); trendFocus = null; });
+    svg.addEventListener("keydown", e => {
+      if (trendFocus == null) trendFocus = si;
+      if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+        e.preventDefault();
+        trendFocus = Math.max(0, Math.min(n - 1, trendFocus + (e.key === "ArrowRight" ? 1 : -1)));
+        showCross(trendFocus);
+        const p = pointAt(trendFocus);
+        showTip(trendTip(trendFocus), p[0], p[1]);
+      } else if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        const keep = trendFocus;
+        setYear(YEARS[keep]);
+        const svg2 = document.querySelector("#trendChart svg");
+        trendFocus = keep;
+        if (svg2) svg2.focus();
+      }
+    });
+  }
+
+  function renderTrendTable() {
+    const t = document.getElementById("trendTable");
+    t.textContent = "";
+    h("caption", "sr", "On-time arrival rate by year for the Big Four airlines and all carriers", t);
+    const tr = h("tr", null, null, h("thead", null, null, t));
+    const head = ["Year"].concat(LEGEND_ORDER.map(c => SERIES[c].label));
+    head.forEach((l, i) => { const th = h("th", i ? "n" : null, l, tr); th.scope = "col"; });
+    const tb = h("tbody", null, null, t);
+    YEARS.forEach(yr => {
+      const row = h("tr", null, null, tb);
+      h("td", null, yr === 2026 ? "2026 (Jan–Jun)" : String(yr), row);
+      LEGEND_ORDER.forEach(c => h("td", "n", f1(val(c, yr)) + "%", row));
+    });
+  }
+
+  /* ---------- Period table ---------- */
+  function renderTable() {
+    const y = state.year;
+    document.getElementById("tablePeriod").textContent = period(y);
+    const rows = rowsFor(y).sort(byOn);
+    const all = D[y].ALL;
+    const t = document.getElementById("dataTable");
+    t.textContent = "";
+    h("caption", "sr", "On-time performance by airline, " + period(y), t);
+    const tr = h("tr", null, null, h("thead", null, null, t));
+    [["Rank", "n"], ["Airline", null], ["Code", null], ["Scheduled flights", "n"], ["On time", "n"], ["Late", "n"], ["Cancelled", "n"], ["Diverted", "n"]]
+      .forEach(([l, c]) => { const th = h("th", c, l, tr); th.scope = "col"; });
+    const tb = h("tbody", null, null, t);
+    rows.forEach((r, i) => {
+      const row = h("tr", r.code === "DL" ? "hl" : null, null, tb);
+      h("td", "n", String(i + 1), row);
+      const nm = h("td", null, r.name, row);
+      if (r.regional) h("span", "tag", "Regional", nm);
+      h("td", "code", r.code, row);
+      h("td", "n", fN(r.flights), row);
+      ["on", "late", "cx", "div"].forEach(k => h("td", "n", f1(r[k]) + "%", row));
+    });
+    const tot = h("tr", "total", null, tb);
+    h("td", "n", "", tot);
+    h("td", null, "All reporting carriers", tot);
+    h("td", "code", "", tot);
+    h("td", "n", fN(all[0]), tot);
+    [1, 2, 3, 4].forEach(k => h("td", "n", f1(all[k]) + "%", tot));
+  }
+
+  /* ---------- Orchestration ---------- */
+  function renderCharts() {
+    renderBars(document.getElementById("otChart"), "on");
+    renderBars(document.getElementById("cxChart"), "cx");
+    renderTrend();
+  }
+  function update() {
+    const y = state.year;
+    seg.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.id === "year-" + y)));
+    document.getElementById("otSub").textContent = "Share of scheduled flights that arrived within 15 minutes of schedule · " + periodTitle(y);
+    document.getElementById("cxSub").textContent = "Share of scheduled flights cancelled · " + periodTitle(y) + " · lower is better";
+    renderKPIs();
+    renderCharts();
+    renderTable();
+  }
+
+  renderLegend();
+  renderTrendTable();
+  update();
+
+  let lastW = 0, raf = 0;
+  const ro = new ResizeObserver(entries => {
+    const w = Math.round(entries[0].contentRect.width);
+    if (w === lastW) return;
+    lastW = w;
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => { hideTip(); renderCharts(); });
+  });
+  ro.observe(document.querySelector(".wrap"));
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(renderCharts);
+})();
+</script>
+</body>
+</html>
